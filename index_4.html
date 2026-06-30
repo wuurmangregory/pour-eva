@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pour Eva</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,500&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#FBF1EA;
+    --wine:#4A1942;
+    --rose:#D98A93;
+    --rose-light:#F4DDDF;
+    --gold:#CDA34F;
+    --shadow: 0 20px 60px rgba(74,25,66,0.12);
+  }
+
+  *{box-sizing:border-box; margin:0; padding:0;}
+
+  html,body{
+    height:100%;
+    background: radial-gradient(ellipse at top, #FFF8F3 0%, var(--cream) 55%, #F3E3DC 100%);
+    font-family:'Jost', sans-serif;
+    color:var(--wine);
+    overflow-x:hidden;
+  }
+
+  .stage{
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+    position:relative;
+  }
+
+  /* ambient floating hearts */
+  .floaters{
+    position:fixed; inset:0; pointer-events:none; z-index:0; overflow:hidden;
+  }
+  .floaters span{
+    position:absolute;
+    bottom:-40px;
+    font-size:18px;
+    color:var(--rose);
+    opacity:0.35;
+    animation: rise linear infinite;
+  }
+  @keyframes rise{
+    to{ transform: translateY(-110vh) rotate(20deg); opacity:0; }
+  }
+
+  .card{
+    position:relative;
+    z-index:1;
+    width:100%;
+    max-width:560px;
+    background: #FFFDFB;
+    border-radius:18px;
+    box-shadow:var(--shadow);
+    padding:48px 40px;
+    border:1px solid rgba(74,25,66,0.06);
+  }
+
+  .back-btn{
+    position:absolute;
+    top:18px;
+    left:18px;
+    width:36px;
+    height:36px;
+    border-radius:50%;
+    background:#fff;
+    border:1.5px solid rgba(74,25,66,0.14);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:18px;
+    color:var(--wine);
+    line-height:1;
+  }
+  .back-btn:hover{
+    background:var(--rose-light);
+    border-color:var(--rose);
+    transform:translateX(-2px);
+  }
+
+  .eyebrow{
+    font-size:12px;
+    letter-spacing:0.18em;
+    text-transform:uppercase;
+    color:var(--rose);
+    font-weight:500;
+    margin-bottom:14px;
+    display:block;
+  }
+
+  h1, h2, .display{
+    font-family:'Cormorant Garamond', serif;
+    font-weight:600;
+    color:var(--wine);
+    line-height:1.2;
+  }
+
+  h1{ font-size:34px; margin-bottom:6px; }
+  h2{ font-size:28px; margin-bottom:24px; }
+
+  p{ line-height:1.65; font-size:16.5px; }
+
+  .intro-text p{
+    opacity:0;
+    transform:translateY(8px);
+    animation: fadein 0.7s ease forwards;
+    margin-bottom:14px;
+    font-size:19px;
+    font-family:'Cormorant Garamond', serif;
+    font-style:italic;
+    color:#5d2a4f;
+  }
+  @keyframes fadein{ to{ opacity:1; transform:translateY(0);} }
+  @keyframes fadeinScreen{ from{ opacity:0; } to{ opacity:1; } }
+
+  .actions{
+    display:flex;
+    gap:14px;
+    margin-top:32px;
+    flex-wrap:wrap;
+    opacity:0;
+  }
+  .actions.show{ animation: fadein 0.6s ease forwards; }
+
+  button{
+    font-family:'Jost', sans-serif;
+    font-size:15.5px;
+    cursor:pointer;
+    border:none;
+    border-radius:999px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  }
+
+  .btn-primary{
+    background: linear-gradient(135deg, var(--rose), #c5717c);
+    color:#fff;
+    padding:14px 28px;
+    font-weight:500;
+    box-shadow:0 10px 24px rgba(217,138,147,0.35);
+  }
+  .btn-primary:hover{ transform:translateY(-2px); box-shadow:0 14px 28px rgba(217,138,147,0.45); }
+
+  .btn-secondary{
+    background:transparent;
+    color:var(--wine);
+    padding:14px 24px;
+    border:1.5px solid rgba(74,25,66,0.18);
+  }
+  .btn-secondary:hover{ background:rgba(74,25,66,0.04); }
+
+  .heart-pop{
+    font-size:60px;
+    text-align:center;
+    margin:18px 0;
+    opacity:0;
+    transform:scale(0.3);
+  }
+  .heart-pop.show{
+    animation: heartpop 0.7s cubic-bezier(.17,.89,.32,1.49) forwards;
+  }
+  @keyframes heartpop{
+    to{ opacity:1; transform:scale(1); }
+  }
+
+  /* progress dots */
+  .progress{
+    display:flex;
+    gap:8px;
+    margin-bottom:28px;
+  }
+  .progress span{
+    height:6px;
+    flex:1;
+    border-radius:4px;
+    background:rgba(74,25,66,0.1);
+    overflow:hidden;
+  }
+  .progress span i{
+    display:block;
+    height:100%;
+    width:0%;
+    background:var(--rose);
+    transition:width 0.4s ease;
+  }
+  .progress span.done i{ width:100%; }
+  .progress span.active i{ width:100%; transition:width 0.6s ease; }
+
+  .options{
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+    margin-top:8px;
+  }
+
+  .option{
+    text-align:left;
+    background:#fff;
+    border:1.5px solid rgba(74,25,66,0.12);
+    border-radius:14px;
+    padding:16px 18px;
+    font-size:16px;
+    color:var(--wine);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+  }
+  .option:hover{
+    border-color:var(--rose);
+    background:var(--rose-light);
+    transform:translateX(2px);
+  }
+  .option.selected{
+    border-color:var(--rose);
+    background:var(--rose-light);
+    box-shadow:0 6px 18px rgba(217,138,147,0.25);
+  }
+  .option .arrow{ opacity:0.4; font-size:14px; }
+
+  textarea, input[type="text"]{
+    width:100%;
+    border:1.5px solid rgba(74,25,66,0.15);
+    border-radius:12px;
+    padding:14px 16px;
+    font-family:'Jost', sans-serif;
+    font-size:15.5px;
+    color:var(--wine);
+    background:#fff;
+    resize:vertical;
+    min-height:110px;
+    margin-top:8px;
+  }
+  textarea:focus, input:focus{ outline:none; border-color:var(--rose); }
+
+  .screen{ display:none; }
+  .screen.active{ display:block; animation: fadeinScreen 0.5s ease; }
+
+  /* drawing game */
+  #heartCanvas{
+    width:100%;
+    aspect-ratio: 4/3;
+    border-radius:16px;
+    border:1.5px dashed rgba(74,25,66,0.25);
+    background:
+      repeating-linear-gradient(135deg, rgba(217,138,147,0.05) 0 2px, transparent 2px 14px),
+      #FFFCFA;
+    touch-action:none;
+    cursor:crosshair;
+  }
+  .canvas-hint{
+    font-size:13.5px;
+    color:#8a6577;
+    margin-top:10px;
+    text-align:center;
+  }
+
+  /* gift / final */
+  .final-wrap{ text-align:center; }
+  .gift-box{
+    width:140px; height:140px; margin:0 auto 22px;
+    position:relative;
+  }
+  .gift-box svg{ width:100%; height:100%; }
+  .lock-click{
+    animation: lockwiggle 0.6s ease 0.3s;
+  }
+  @keyframes lockwiggle{
+    0%,100%{ transform:rotate(0deg); }
+    20%{ transform:rotate(-6deg); }
+    40%{ transform:rotate(5deg); }
+    60%{ transform:rotate(-3deg); }
+    80%{ transform:rotate(2deg); }
+  }
+
+  .final-text p{
+    opacity:0;
+    animation: fadein 0.7s ease forwards;
+  }
+
+  .status-msg{
+    margin-top:18px;
+    font-size:14px;
+    color:#8a6577;
+    min-height:20px;
+  }
+
+  footer-note{ display:none; }
+
+  @media (max-width:480px){
+    .card{ padding:34px 24px; }
+    h1{ font-size:28px; }
+    h2{ font-size:23px; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration:0.01ms !important; animation-iteration-count:1 !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="floaters" id="floaters"></div>
+
+<div class="stage">
+  <div class="card">
+
+    <!-- progress -->
+    <div class="progress" id="progressBar"></div>
+
+    <!-- SCREEN 0 : INTRO -->
+    <div class="screen active" id="screen-intro">
+      <span class="eyebrow">Pour toi, Eva</span>
+      <div class="intro-text" id="introText"></div>
+      <div class="actions" id="introActions">
+        <button class="btn-primary" id="btnOk">Bien sûr</button>
+        <button class="btn-secondary" id="btnNo">Non je ne préfère pas</button>
+      </div>
+      <div class="heart-pop" id="introHeart">❤️</div>
+    </div>
+
+    <!-- SCREEN STOP (if she declines) -->
+    <div class="screen" id="screen-stop">
+      <h2>Pas de souci 💛</h2>
+      <p>On en reparlera quand tu voudras. Je t'aime tout pareil.</p>
+    </div>
+
+    <!-- SCREEN Q1 -->
+    <div class="screen" id="screen-q1">
+      <button class="back-btn" onclick="goBack()" aria-label="Retour">←</button>
+      <span class="eyebrow">Question 1</span>
+      <h2>Tu préfères…</h2>
+      <div class="options" id="q1Options">
+        <button class="option" data-value="Une soirée à deux">Une soirée à deux <span class="arrow">→</span></button>
+        <button class="option" data-value="Un city-trip d'une journée">Un city-trip d'une journée <span class="arrow">→</span></button>
+        <button class="option" data-value="Un city-trip de deux jours">Un city-trip de deux jours <span class="arrow">→</span></button>
+        <button class="option" data-value="Une nuit en Wellness">Une nuit en Wellness <span class="arrow">→</span></button>
+      </div>
+    </div>
+
+    <!-- SCREEN Q2 -->
+    <div class="screen" id="screen-q2">
+      <button class="back-btn" onclick="goBack()" aria-label="Retour">←</button>
+      <span class="eyebrow">Question 2</span>
+      <h2 id="q2Title">Et plus précisément ?</h2>
+      <div class="options" id="q2Options"></div>
+    </div>
+
+    <!-- SCREEN HEART GAME -->
+    <div class="screen" id="screen-game">
+      <button class="back-btn" onclick="goBack()" aria-label="Retour">←</button>
+      <span class="eyebrow">Petit défi</span>
+      <h2>Dessine un cœur ✏️</h2>
+      <p>Pour débloquer la suite, dessine un petit cœur ci-dessous (même approximatif, c'est parfait).</p>
+      <canvas id="heartCanvas"></canvas>
+      <div class="canvas-hint">Dessine avec ta souris ou ton doigt</div>
+      <div class="actions show" style="margin-top:22px;">
+        <button class="btn-secondary" id="btnClearCanvas">Effacer</button>
+        <button class="btn-primary" id="btnContinueGame" disabled>Continuer →</button>
+      </div>
+    </div>
+
+    <!-- SCREEN Q3 -->
+    <div class="screen" id="screen-q3">
+      <button class="back-btn" onclick="goBack()" aria-label="Retour">←</button>
+      <span class="eyebrow">Question 3</span>
+      <h2>Tu voudrais qu'on fasse ça quand ?</h2>
+      <div class="options" id="q3Options">
+        <button class="option" data-value="Cet été">Cet été <span class="arrow">→</span></button>
+        <button class="option" data-value="La rentrée en septembre">La rentrée en septembre <span class="arrow">→</span></button>
+        <button class="option" data-value="Plus tard en hiver">Plus tard en hiver <span class="arrow">→</span></button>
+      </div>
+    </div>
+
+    <!-- SCREEN Q4 -->
+    <div class="screen" id="screen-q4">
+      <button class="back-btn" onclick="goBack()" aria-label="Retour">←</button>
+      <span class="eyebrow">Dernière question</span>
+      <h2>Qu'est-ce qui te manque dans ta vie que je pourrais t'apporter ?</h2>
+      <textarea id="q4Answer" placeholder="Écris ce que tu veux, je lirai ça avec attention..."></textarea>
+      <div class="actions show" style="margin-top:20px;">
+        <button class="btn-primary" id="btnSubmit">Envoyer mes réponses</button>
+      </div>
+      <div class="status-msg" id="statusMsg"></div>
+    </div>
+
+    <!-- SCREEN FINAL -->
+    <div class="screen" id="screen-final">
+      <div class="final-wrap">
+        <div class="gift-box">
+          <svg viewBox="0 0 120 120" class="lock-click">
+            <rect x="20" y="50" width="80" height="55" rx="8" fill="#D98A93"/>
+            <rect x="20" y="50" width="80" height="18" rx="6" fill="#c5717c"/>
+            <rect x="54" y="50" width="12" height="55" fill="#CDA34F"/>
+            <rect x="20" y="62" width="80" height="12" fill="#CDA34F"/>
+            <circle cx="60" cy="78" r="10" fill="#4A1942"/>
+            <rect x="56" y="78" width="8" height="14" rx="2" fill="#4A1942"/>
+            <path d="M44 50 C44 30, 76 30, 76 50" stroke="#CDA34F" stroke-width="6" fill="none"/>
+          </svg>
+        </div>
+        <span class="eyebrow">C'est dans la boîte 🔒</span>
+        <div class="final-text" id="finalText"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+/* ---------- CONFIG ---------- */
+const FORM_ENDPOINT = "https://formspree.io/f/xzdlaonl"; // ⚠️ à remplacer, voir instructions
+const RECIPIENT_EMAIL = "wuurman.gregory@gmail.com";
+
+/* ---------- STATE ---------- */
+const answers = {
+  q1: "", q2: "", q3: "", q4: ""
+};
+const steps = ["intro","q1","q2","game","q3","q4","final"];
+let currentStepIndex = 0;
+
+/* ---------- FLOATING HEARTS ---------- */
+const floaterWrap = document.getElementById('floaters');
+const heartChars = ['❤','♥','❤︎'];
+for(let i=0;i<14;i++){
+  const s = document.createElement('span');
+  s.textContent = heartChars[Math.floor(Math.random()*heartChars.length)];
+  s.style.left = Math.random()*100 + '%';
+  s.style.fontSize = (12+Math.random()*16)+'px';
+  s.style.animationDuration = (10+Math.random()*12)+'s';
+  s.style.animationDelay = (Math.random()*10)+'s';
+  floaterWrap.appendChild(s);
+}
+
+/* ---------- PROGRESS BAR ---------- */
+const questionSteps = ["q1","q2","game","q3","q4"]; // intro & final excluded
+const progressBar = document.getElementById('progressBar');
+questionSteps.forEach(()=>{
+  const dot = document.createElement('span');
+  dot.innerHTML = '<i></i>';
+  progressBar.appendChild(dot);
+});
+function updateProgress(stepId){
+  const idx = questionSteps.indexOf(stepId);
+  const dots = progressBar.querySelectorAll('span');
+  dots.forEach((d,i)=>{
+    d.classList.remove('active','done');
+    if(idx<0) return;
+    if(i<idx) d.classList.add('done');
+    else if(i===idx) d.classList.add('active');
+  });
+  progressBar.style.display = idx<0 ? 'none' : 'flex';
+}
+
+/* ---------- SCREEN NAV ---------- */
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(el=>el.classList.remove('active'));
+  document.getElementById('screen-'+id).classList.add('active');
+  updateProgress(id);
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+let navHistory = [];
+let currentScreen = 'intro';
+function navigateTo(id){
+  navHistory.push(currentScreen);
+  currentScreen = id;
+  showScreen(id);
+}
+function goBack(){
+  if(navHistory.length===0) return;
+  const prev = navHistory.pop();
+  currentScreen = prev;
+  showScreen(prev);
+}
+
+/* ---------- INTRO TEXT REVEAL ---------- */
+const introLines = [
+  "Bonjour Eva, ça fait longtemps qu'on ne s'est pas retrouvés à deux.",
+  "Si tu es d'accord, j'aimerais que tu répondes à quelques questions."
+];
+const introText = document.getElementById('introText');
+introLines.forEach((line, i)=>{
+  const p = document.createElement('p');
+  p.textContent = line;
+  p.style.animationDelay = (i*1.1)+'s';
+  introText.appendChild(p);
+});
+setTimeout(()=>{
+  document.getElementById('introActions').classList.add('show');
+}, introLines.length*1100 + 300);
+
+document.getElementById('btnOk').addEventListener('click', ()=>{
+  document.getElementById('introActions').style.display='none';
+  const heart = document.getElementById('introHeart');
+  heart.classList.add('show');
+  setTimeout(()=>{ navigateTo('q1'); }, 2200);
+});
+document.getElementById('btnNo').addEventListener('click', ()=>{
+  showScreen('stop');
+  progressBar.style.display='none';
+});
+
+/* ---------- Q1 ---------- */
+const q2Data = {
+  "Une soirée à deux": {
+    title: "Plutôt…",
+    options: ["Cinéma + resto", "Cocktail bar + resto"]
+  },
+  "Un city-trip d'une journée": {
+    title: "Dans quelle ville ?",
+    options: ["Anvers", "Gand", "Londres", "Paris"]
+  },
+  "Un city-trip de deux jours": {
+    title: "Dans quelle ville ?",
+    options: ["Anvers", "Gand", "Londres", "Paris"]
+  },
+  "Une nuit en Wellness": {
+    title: "Lequel te tente ?",
+    options: ["Waer Waters", "Clos des Thermes", "Hoeve la Cascina", "Le 19 (Namur)", "Château du Lac"]
+  }
+};
+
+document.getElementById('q1Options').addEventListener('click', (e)=>{
+  const btn = e.target.closest('.option');
+  if(!btn) return;
+  answers.q1 = btn.dataset.value;
+  buildQ2(btn.dataset.value);
+  navigateTo('q2');
+});
+
+function buildQ2(q1value){
+  const data = q2Data[q1value];
+  document.getElementById('q2Title').textContent = data.title;
+  const wrap = document.getElementById('q2Options');
+  wrap.innerHTML = '';
+  data.options.forEach(opt=>{
+    const b = document.createElement('button');
+    b.className = 'option';
+    b.dataset.value = opt;
+    b.innerHTML = opt + ' <span class="arrow">→</span>';
+    wrap.appendChild(b);
+  });
+}
+
+document.getElementById('q2Options').addEventListener('click', (e)=>{
+  const btn = e.target.closest('.option');
+  if(!btn) return;
+  answers.q2 = btn.dataset.value;
+  resetCanvas();
+  navigateTo('game');
+});
+
+/* ---------- Q3 ---------- */
+document.getElementById('q3Options').addEventListener('click', (e)=>{
+  const btn = e.target.closest('.option');
+  if(!btn) return;
+  answers.q3 = btn.dataset.value;
+  navigateTo('q4');
+});
+
+/* ---------- HEART DRAWING GAME ---------- */
+const canvas = document.getElementById('heartCanvas');
+const ctx = canvas.getContext('2d');
+let drawing = false;
+let hasDrawn = false;
+let strokeLength = 0;
+
+function resizeCanvas(){
+  const rect = canvas.getBoundingClientRect();
+  canvas.width = rect.width * devicePixelRatio;
+  canvas.height = rect.height * devicePixelRatio;
+  ctx.scale(devicePixelRatio, devicePixelRatio);
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  ctx.lineWidth = 4;
+  ctx.strokeStyle = '#D9586A';
+}
+window.addEventListener('resize', ()=>{ resetCanvas(); });
+
+function getPos(e){
+  const rect = canvas.getBoundingClientRect();
+  const x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
+  const y = (e.touches ? e.touches[0].clientY : e.clientY) - rect.top;
+  return {x,y};
+}
+function startDraw(e){
+  drawing = true;
+  const p = getPos(e);
+  ctx.beginPath();
+  ctx.moveTo(p.x,p.y);
+  e.preventDefault();
+}
+function moveDraw(e){
+  if(!drawing) return;
+  const p = getPos(e);
+  ctx.lineTo(p.x,p.y);
+  ctx.stroke();
+  strokeLength++;
+  if(strokeLength>25 && !hasDrawn){
+    hasDrawn = true;
+    document.getElementById('btnContinueGame').disabled = false;
+  }
+  e.preventDefault();
+}
+function endDraw(){ drawing = false; }
+
+canvas.addEventListener('mousedown', startDraw);
+canvas.addEventListener('mousemove', moveDraw);
+window.addEventListener('mouseup', endDraw);
+canvas.addEventListener('touchstart', startDraw, {passive:false});
+canvas.addEventListener('touchmove', moveDraw, {passive:false});
+canvas.addEventListener('touchend', endDraw);
+
+function resetCanvas(){
+  setTimeout(()=>{
+    resizeCanvas();
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    hasDrawn = false;
+    strokeLength = 0;
+    document.getElementById('btnContinueGame').disabled = true;
+  }, 50);
+}
+document.getElementById('btnClearCanvas').addEventListener('click', ()=>{
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  hasDrawn = false;
+  strokeLength = 0;
+  document.getElementById('btnContinueGame').disabled = true;
+});
+document.getElementById('btnContinueGame').addEventListener('click', ()=>{
+  navigateTo('q3');
+});
+
+/* ---------- SUBMIT ---------- */
+document.getElementById('btnSubmit').addEventListener('click', async ()=>{
+  answers.q4 = document.getElementById('q4Answer').value.trim();
+  const statusEl = document.getElementById('statusMsg');
+  const submitBtn = document.getElementById('btnSubmit');
+
+  submitBtn.disabled = true;
+  statusEl.textContent = "Envoi en cours...";
+
+  const payload = {
+    _subject: "💌 Les réponses d'Eva",
+    "Question 1 - Préférence": answers.q1,
+    "Question 2 - Précision": answers.q2,
+    "Question 3 - Quand": answers.q3,
+    "Question 4 - Ce qui lui manque": answers.q4 || "(pas de réponse)",
+    email: RECIPIENT_EMAIL
+  };
+
+  try{
+    const res = await fetch(FORM_ENDPOINT, {
+      method:"POST",
+      headers:{ "Content-Type":"application/json", "Accept":"application/json" },
+      body: JSON.stringify(payload)
+    });
+    if(res.ok){
+      goToFinal();
+    } else {
+      statusEl.textContent = "Oups, l'envoi a échoué. Réessaie dans un instant.";
+      submitBtn.disabled = false;
+    }
+  } catch(err){
+    statusEl.textContent = "Oups, l'envoi a échoué. Vérifie ta connexion.";
+    submitBtn.disabled = false;
+  }
+});
+
+/* ---------- FINAL SCREEN ---------- */
+const finalLines = [
+  "Tes réponses viennent de s'envoler jusqu'à moi, bien à l'abri.",
+  "Je vais maintenant préparer quelque chose, rien que pour toi.",
+  "Patiente encore un peu... la suite est une surprise. 🔒❤️"
+];
+function goToFinal(){
+  showScreen('final');
+  const wrap = document.getElementById('finalText');
+  wrap.innerHTML = '';
+  finalLines.forEach((line,i)=>{
+    const p = document.createElement('p');
+    p.textContent = line;
+    p.style.animationDelay = (0.4 + i*1.1)+'s';
+    wrap.appendChild(p);
+  });
+}
+</script>
+
+</body>
+</html>
